@@ -43,6 +43,13 @@ if not U3_ENDPOINT:
     U3_BUCKET = U3_BUCKET or "bucket01"
     print("[warn] S3_ENDPOINT not set; using default. Set via Connect to app or altr env set.", flush=True)
 
+# Altare sets ALTARE_URL automatically — the app's public HTTPS address.
+ALTARE_URL = os.environ.get("ALTARE_URL", "")
+if ALTARE_URL:
+    print(f"[info] ALTARE_URL = {ALTARE_URL}", flush=True)
+else:
+    print("[info] ALTARE_URL not set (local dev or not deployed via Altare).", flush=True)
+
 
 def _hmac_sha256(key: bytes, msg: str) -> bytes:
     """HMAC-SHA256, returns raw digest bytes."""
@@ -160,6 +167,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {
                 "ok": True,
                 "service": "python-app",
+                "altare_url": ALTARE_URL,
                 "s3_endpoint": U3_ENDPOINT,
                 "s3_bucket": U3_BUCKET,
                 "s3_region": U3_REGION,
