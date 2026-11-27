@@ -245,11 +245,9 @@ def main():
         # Local development fallback
         ports = [8080]
 
-    # Also listen on port 80 so Altare's reverse proxy can route HTTPS
-    # (the proxy expects the app on a standard HTTP port for name-based routing)
-    if 80 not in ports:
-        ports.append(80)
-
+    # Single-port contract: listen ONLY on the Altare-allocated PORT so the
+    # platform can map name-based HTTPS routing to one unambiguous endpoint.
+    # (Dual listen on :80 + :PORT broke `altr domains add` name routing.)
     threads = [threading.Thread(target=serve, args=(p,), daemon=True) for p in ports]
     for t in threads:
         t.start()
