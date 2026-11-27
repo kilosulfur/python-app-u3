@@ -234,15 +234,21 @@ def main():
 
     # Altare allocates a port and provides it via PORT env var.
     port_env = os.environ.get("PORT", "")
+    ports = []
     if port_env:
         try:
-            ports = [int(port_env)]
+            ports.append(int(port_env))
         except ValueError:
             print(f"[error] PORT={port_env!r} is not a valid integer", flush=True)
             sys.exit(1)
     else:
         # Local development fallback
         ports = [8080]
+
+    # Also listen on port 80 so Altare's reverse proxy can route HTTPS
+    # (the proxy expects the app on a standard HTTP port for name-based routing)
+    if 80 not in ports:
+        ports.append(80)
 
     threads = [threading.Thread(target=serve, args=(p,), daemon=True) for p in ports]
     for t in threads:
